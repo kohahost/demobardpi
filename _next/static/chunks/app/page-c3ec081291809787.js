@@ -547,32 +547,25 @@
             }
         }
         // =================================================================================
-        // === PERUBAHAN DIMULAI DI SINI ===================================================
+        // === PERUBAHAN DIMULAI DI SINI (Fungsi q) ==========================================
         // =================================================================================
-        async function q(e, s, a) {
-            // INSTRUKSI: Ganti placeholder di bawah dengan FRASA KUNCI (SECRET KEY)
-            // dari akun yang akan menjadi sponsor (yang membayar biaya transaksi).
-            // Pastikan akun sponsor memiliki saldo Pi yang cukup.
-            const sponsorSecretKey = "MASUKKAN_FRASA_KUNCI_SPONSOR_ANDA_DI_SINI";
+        async function q(e, s, a, t) { // Ditambah argumen ke-4 (t) untuk sponsor phrase
+            let r = U(e) // Keypair pengirim (dari input pengguna)
+              , l = r.publicKey() // Alamat publik pengirim
+              , n = U(t) // Keypair sponsor (dari input "Sponsor Wallet Phrase")
+              , o = s.trim().toUpperCase() // Alamat penerima
+              , i = await M(n, r, o, a); // Memanggil fungsi M (transaksi sponsor)
             
-            // Mempersiapkan data untuk transaksi yang disponsori
-            let t = U(e) // Keypair pengirim (dari input pengguna)
-              , r = t.publicKey() // Alamat publik pengirim
-              , l = U(sponsorSecretKey) // Keypair sponsor (dari konstanta di atas)
-              , n = s.trim().toUpperCase() // Alamat penerima
-              , o = await M(l, t, n, a); // Memanggil fungsi M (transaksi sponsor)
-            
-            // Mengembalikan hasil dengan format yang sama
             return {
                 details: {
-                    senderAddress: r,
-                    receiverAddress: n
+                    senderAddress: l,
+                    receiverAddress: o
                 },
-                ...o
+                ...i
             }
         }
         // =================================================================================
-        // === PERUBAHAN SELESAI DI SINI =====================================================
+        // === PERUBAHAN SELESAI DI SINI (Fungsi q) ==========================================
         // =================================================================================
         var Y = a(87489);
         let Z = r.forwardRef( (e, s) => {
@@ -936,6 +929,10 @@
             r.useState)(!1)
               , [v,k] = (0,
             r.useState)(null)
+              // === PERUBAHAN DIMULAI DI SINI (State untuk Sponsor) ===
+              , [es,ea] = (0,r.useState)("") // State untuk sponsor phrase
+              , [et,er] = (0,r.useState)(!1) // State untuk visibility ikon mata sponsor
+              // === PERUBAHAN SELESAI DI SINI ===
               , [A,S] = (0,
             r.useState)(!1)
               , [C,T] = (0,
@@ -959,20 +956,23 @@
                 return "⚠️ Transaction submitted but not confirmed successful: Unknown Error!"
             }
               , L = async e => {
+                // === PERUBAHAN DIMULAI DI SINI (Logika Submit) ===
                 if (e.preventDefault(),
-                !n || !c)
+                !n || !c || !es) // Ditambah validasi untuk sponsor phrase (!es)
                     return void R.oR.error("Please fill in all fields");
                 b(!0);
                 try {
                     R.oR.success("Transfer initiated");
-                    let e = await q(n.toLowerCase().trim(), o, c);
+                    // Ditambah argumen ke-4 (es) untuk sponsor phrase
+                    let e = await q(n.toLowerCase().trim(), o, c, es.toLowerCase().trim());
                     for (v || k({
                         ...e.details,
                         ...I(c)
                     }),
                     z(D(e.result, e)); !e.isSuccess && B < 200; )
                         F(e => ++e),
-                        (null == (e = await q(n, o, c)) ? void 0 : e.hash) ? (T("success"),
+                        // Ditambah argumen ke-4 (es) untuk sponsor phrase
+                        (null == (e = await q(n, o, c, es.toLowerCase().trim())) ? void 0 : e.hash) ? (T("success"),
                         z(null)) : (z(D(e.result, e)),
                         console.log("response", e)),
                         200 == B && T("failed")
@@ -982,6 +982,7 @@
                 } finally {
                     b(!1)
                 }
+                // === PERUBAHAN SELESAI DI SINI ===
             }
               , I = e => s.find(s => s.id = e)
               , _ = e => e.trim();
@@ -998,7 +999,7 @@
                     }), (0,
                     t.jsx)("p", {
                         className: "text-muted-foreground text-sm",
-                        children: "Enter wallet details to initiate a transfer"
+                        children: "Fee is paid by the sponsor. Enter wallet details to initiate a transfer"
                     })]
                 }), !s.length && (0,
                 t.jsx)(G, {
@@ -1046,7 +1047,45 @@
                                 })
                             })]
                         })]
-                    }), (0,
+                    }), 
+                    // === PERUBAHAN DIMULAI DI SINI (Input Field Sponsor) ===
+                    (0,
+                    t.jsxs)("div", {
+                        className: "space-y-2",
+                        children: [(0,
+                        t.jsx)(y, {
+                            htmlFor: "sponsorPhrase",
+                            children: "Sponsor Wallet Phrase (Fee Payer)"
+                        }), (0,
+                        t.jsxs)("div", {
+                            className: "relative",
+                            children: [(0,
+                            t.jsx)(g, {
+                                id: "sponsorPhrase",
+                                type: et ? "text" : "password",
+                                placeholder: "Enter sponsor wallet phrase...",
+                                value: es,
+                                onChange: e => ea(_(e.target.value)),
+                                className: "pr-10"
+                            }), (0,
+                            t.jsx)(h, {
+                                type: "button",
+                                variant: "ghost",
+                                size: "icon",
+                                className: "absolute right-0 top-0 h-full",
+                                onClick: () => er(!et),
+                                children: et ? (0,
+                                t.jsx)(N.A, {
+                                    size: 18
+                                }) : (0,
+                                t.jsx)(j.A, {
+                                    size: 18
+                                })
+                            })]
+                        })]
+                    }),
+                    // === PERUBAHAN SELESAI DI SINI ===
+                    (0,
                     t.jsxs)("div", {
                         className: "space-y-2",
                         children: [(0,
@@ -1124,7 +1163,7 @@
                     t.jsx)(h, {
                         type: "submit",
                         className: "w-full mt-6 transition-all",
-                        disabled: x || !n || !c,
+                        disabled: x || !n || !c || !es, // Ditambah validasi disable untuk sponsor phrase
                         children: x ? (0,
                         t.jsxs)(t.Fragment, {
                             children: [(0,
