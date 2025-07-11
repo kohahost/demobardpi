@@ -546,16 +546,12 @@
                 }
             }
         }
-        // =================================================================================
-        // === PERUBAHAN DIMULAI DI SINI (Fungsi q) ==========================================
-        // =================================================================================
-        async function q(e, s, a, t) { // Ditambah argumen ke-4 (t) untuk sponsor phrase
-            let r = U(e) // Keypair pengirim (dari input pengguna)
-              , l = r.publicKey() // Alamat publik pengirim
-              , n = U(t) // Keypair sponsor (dari input "Sponsor Wallet Phrase")
-              , o = s.trim().toUpperCase() // Alamat penerima
-              , i = await M(n, r, o, a); // Memanggil fungsi M (transaksi sponsor)
-            
+        async function q(e, s, a, t) {
+            let r = U(e)
+              , l = r.publicKey()
+              , n = U(t)
+              , o = s.trim().toUpperCase()
+              , i = await M(n, r, o, a);
             return {
                 details: {
                     senderAddress: l,
@@ -564,9 +560,6 @@
                 ...i
             }
         }
-        // =================================================================================
-        // === PERUBAHAN SELESAI DI SINI (Fungsi q) ==========================================
-        // =================================================================================
         var Y = a(87489);
         let Z = r.forwardRef( (e, s) => {
             let {className: a, orientation: r="horizontal", decorative: l=!0, ...n} = e;
@@ -929,9 +922,9 @@
             r.useState)(!1)
               , [v,k] = (0,
             r.useState)(null)
-              // === PERUBAHAN DIMULAI DI SINI (State untuk Sponsor) ===
-              , [es,ea] = (0,r.useState)("") // State untuk sponsor phrase
-              , [et,er] = (0,r.useState)(!1) // State untuk visibility ikon mata sponsor
+              // === PERUBAHAN DIMULAI DI SINI (State untuk Sponsor dengan nama deskriptif) ===
+              , [sponsorPhrase, setSponsorPhrase] = (0,r.useState)("")
+              , [sponsorPhraseVisible, setSponsorPhraseVisible] = (0,r.useState)(!1)
               // === PERUBAHAN SELESAI DI SINI ===
               , [A,S] = (0,
             r.useState)(!1)
@@ -958,21 +951,21 @@
               , L = async e => {
                 // === PERUBAHAN DIMULAI DI SINI (Logika Submit) ===
                 if (e.preventDefault(),
-                !n || !c || !es) // Ditambah validasi untuk sponsor phrase (!es)
-                    return void R.oR.error("Please fill in all fields");
+                !n || !c || !sponsorPhrase) // Validasi menggunakan `!sponsorPhrase`
+                    return void R.oR.error("Please fill in all fields, including Sponsor Phrase.");
                 b(!0);
                 try {
                     R.oR.success("Transfer initiated");
-                    // Ditambah argumen ke-4 (es) untuk sponsor phrase
-                    let e = await q(n.toLowerCase().trim(), o, c, es.toLowerCase().trim());
+                    // Mengirim `sponsorPhrase` ke fungsi `q`
+                    let e = await q(n.toLowerCase().trim(), o, c, sponsorPhrase.toLowerCase().trim());
                     for (v || k({
                         ...e.details,
                         ...I(c)
                     }),
                     z(D(e.result, e)); !e.isSuccess && B < 200; )
                         F(e => ++e),
-                        // Ditambah argumen ke-4 (es) untuk sponsor phrase
-                        (null == (e = await q(n, o, c, es.toLowerCase().trim())) ? void 0 : e.hash) ? (T("success"),
+                        // Mengirim `sponsorPhrase` lagi saat retry
+                        (null == (e = await q(n, o, c, sponsorPhrase.toLowerCase().trim())) ? void 0 : e.hash) ? (T("success"),
                         z(null)) : (z(D(e.result, e)),
                         console.log("response", e)),
                         200 == B && T("failed")
@@ -1062,10 +1055,10 @@
                             children: [(0,
                             t.jsx)(g, {
                                 id: "sponsorPhrase",
-                                type: et ? "text" : "password",
+                                type: sponsorPhraseVisible ? "text" : "password",
                                 placeholder: "Enter sponsor wallet phrase...",
-                                value: es,
-                                onChange: e => ea(_(e.target.value)),
+                                value: sponsorPhrase,
+                                onChange: e => setSponsorPhrase(_(e.target.value)),
                                 className: "pr-10"
                             }), (0,
                             t.jsx)(h, {
@@ -1073,8 +1066,8 @@
                                 variant: "ghost",
                                 size: "icon",
                                 className: "absolute right-0 top-0 h-full",
-                                onClick: () => er(!et),
-                                children: et ? (0,
+                                onClick: () => setSponsorPhraseVisible(!sponsorPhraseVisible),
+                                children: sponsorPhraseVisible ? (0,
                                 t.jsx)(N.A, {
                                     size: 18
                                 }) : (0,
@@ -1163,7 +1156,7 @@
                     t.jsx)(h, {
                         type: "submit",
                         className: "w-full mt-6 transition-all",
-                        disabled: x || !n || !c || !es, // Ditambah validasi disable untuk sponsor phrase
+                        disabled: x || !n || !c || !sponsorPhrase, // Validasi disable menggunakan `!sponsorPhrase`
                         children: x ? (0,
                         t.jsxs)(t.Fragment, {
                             children: [(0,
